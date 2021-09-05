@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% block title %}Inicia Sesion{% endblock %}
+
+{% block content %}
+<div>
+    <div>
+        <div>
+            <form method="POST">
+            {% csrf_token %}
+                <fieldset>
+                <legend >Iniciar Sesión</legend>
+                <div>
+                    {{ form }}
+                </div>
+                </fieldset>
+                <div>
+                    <button type="submit">Iniciar Sesión</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

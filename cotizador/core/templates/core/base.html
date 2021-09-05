@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{% block title %}{% endblock %} | Buendia</title>
+
+    {% load static %}
+
+    <style>
+    {% block styles %}
+
+    {% endblock %}
+    </style>
+
+</head>
+
+<body>
+
+
+<!-- Mensajes --> 
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+
+<!-- Contenido de la pagina -->
+    
+{% block content %}
+        
+{% endblock %}
+
+</body>
+</html>

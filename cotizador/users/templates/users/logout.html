@@ -1,0 +1,11 @@
+{% extends 'core/base.html' %}
+{% block title %}Cerrar Sesion{% endblock %}
+
+{% block content %}
+<h2>Ya has cerrado sesión</h2>
+<div>
+    <small>
+        <a href='{% url 'login' %}'>Vuelve a iniciar sesión</a>
+    </small>
+</div>
+{% endblock %}

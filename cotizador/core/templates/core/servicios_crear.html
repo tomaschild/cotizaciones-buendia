@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Servicio{% endblock %}
+
+{% block content %}
+<div class="container contenedor-wrap"> 
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Crear Nuevo Servicio</legend>
+                {{ form.media }}
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Crear</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

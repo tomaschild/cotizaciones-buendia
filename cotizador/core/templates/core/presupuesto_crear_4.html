@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Presupuesto{% endblock %}
+
+{% block content %}
+<div class="container contenedor-wrap"> 
+    <div class="content-section">
+    <h1>Presupuesto Economico</h1>
+    <hr>
+    {%for object in servicios %}
+        <h2>{{ object.servicio }}</h2>
+        <p>{{ object.servicio.tiempo }}</p>
+        <p>{{ object.servicio.precio }}</p>
+        <hr>
+    {%endfor%}
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                {{ form.media }}
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Crear</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

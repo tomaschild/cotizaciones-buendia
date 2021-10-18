@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Eliminar{% endblock %}
+
+{% block content %}
+<div class="contenedor-wrap bg-negro">
+  <div class="content-section">
+    <div class="container align-center">
+      <h3 class="trash-title">¿Estás seguro que quieres eliminar {{ object }}?</h3>
+      <form method="POST">
+      {% csrf_token %}
+        <a class="btn btn-outline-info custom-link" href={% url 'presupuesto-inicio' %}>Cancelar</a>
+        <button class="btn btn-outline-info" type="submit">Eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

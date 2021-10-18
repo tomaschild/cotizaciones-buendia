@@ -1,14 +1,14 @@
 {% extends 'core/base.html' %}
 {% block title %}Registrarse{% endblock %}
-
+{% load crispy_forms_tags %}
 {% block content %}
 
-<div>
+<div class="container">
     <form method="POST">
         {% csrf_token %}
         <fieldset>
             <legend>Registrate Hoy</legend>
-            {{ form }}
+            {{ form|crispy }}
         </fieldset>
         <div>
             <button type="submit">Registrate</button>

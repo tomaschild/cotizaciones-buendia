@@ -11,37 +11,39 @@
         <th>Tipo de Servicio</th>
         <th>Tiempo Estimado</th> 
         <th>Precio</th>
-        <th>---</th>
     {%for object in servicios %}
     <tr>
         <td>{{ object.servicio }}</td>
         <td>{{ object.servicio.tiempo }}</td>
         <td>{{ object.servicio.precio }}</td>
-        <td><a href="{% url 'serviciopresupuesto-delete' object.id %}">Eliminiar</a></td>
     </tr>
     {%endfor%}
-        <form method="POST">
-        {% csrf_token %}
     <tr>
         <td>Descuento:</td>
-        <td>{{descuento.descuento}}</td>
-        <td>{{descuento.valor_descuento}}</td>
+        {%if presupuesto.descuento == True%}
+        <td>Si</td>
+        <td>{{presupuesto.valor_descuento}}</td>
+        {%else%}
+        <td>No</td>
         <td></td>
+        {%endif%}
     </tr>
     <tr>
         <td></td>
         <td></td>
-        <td>Total: {{ total }}</td>
+        <td>Total: {{total}}</td>
     </tr>
     </table>
     <hr>
-            {% csrf_token %}
-            <fieldset class="form-group">
-                {{ form.media }}
-                {{ form|crispy }}
-            </fieldset>
+    <h4>Otro Comentario</h4>
+    {% if presupuesto.otros_comentarios %}
+    {{ presupuesto.otros_comentarios|safe }}
+    {%else%}
+    <p>no se tiene otro comentario. </p>
+    {%endif%}
+    <hr>
             <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">Siguente</button>
+                <a href="{% url 'presupuesto-inicio' %}"><button class="btn btn-outline-info" type="submit">Terminar</button></a>
             </div>
         </form>
     </div>

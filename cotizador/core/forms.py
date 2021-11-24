@@ -127,9 +127,21 @@ class PresupuestoFormParteCuatro(forms.ModelForm):
     class Meta:
         model = Presupuesto
         fields = [
-            'descuento',
-            'valor_descuento',
             'otros_comentarios',
         ]
         widgets = {
         }
+
+class PresupuestoFormDescuento(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PresupuestoFormDescuento,self).__init__(*args, **kwargs)
+    
+    class Meta:
+        model = Presupuesto
+        fields = [
+            'descuento',
+            'valor_descuento',
+        ]
+        widgets = {
+        }                    
+            

@@ -10,7 +10,7 @@ from .views import (
   EdicionServicioPresupuesto,
   #PRESUPUESTO
   InicioPresupuesto,
-  EdicionPresupuesto
+  EdicionPresupuesto,
 )
 
 urlpatterns = [
@@ -22,9 +22,12 @@ urlpatterns = [
   path('presupuesto/crear/<int:pk>/',views.presupuesto_crear_dos,name="presupuesto-crear-2"),
   path('presupuesto/crear/resumen/<int:pk>/',views.presupuesto_crear_tres,name="presupuesto-crear-3"),
   path('presupuesto/crear/precio/<int:pk>/',views.presupuesto_crear_cuatro,name="presupuesto-crear-4"),
+  path('presupuesto/crear/precio/final/<int:pk>/',views.presupuesto_crear_cinco,name="presupuesto-crear-5"),
   path('presupuesto/<int:pk>/delete/',views.presupuesto_delete, name='presupuesto-delete'),
+  path('presupuesto/<int:pk>/duplicar/',views.presupuesto_duplicar, name='presupuesto-duplicar'),
   #SEWRVICIOS Presupuesto
   path('serviciopresupuesto/<int:pk>/edicion/',EdicionServicioPresupuesto.as_view(), name="serviciopresupuesto-edicion"),
+  path('serviciopresupuesto/<int:pk>/delete/',views.serviciopresupuesto_delete, name="serviciopresupuesto-delete"),
   #SEWRVICIOS
   path('servicios/',InicioServicio.as_view(),name="servicios-inicio"),
   path('servicios/crear/',CrearServicio.as_view(),name="servicios-crear"),

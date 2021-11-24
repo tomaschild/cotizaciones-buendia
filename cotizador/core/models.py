@@ -71,7 +71,7 @@ class ServicioPresupuesto(models.Model):
     class Meta:
         verbose_name = "Servicio en Presupesto"
         verbose_name_plural = "Servicios en Presupuestos"
-        ordering = ['created']
+        ordering = ['-created']
 
     def __str__(self):
         return f'{self.presupuesto.id} - {self.servicio}'

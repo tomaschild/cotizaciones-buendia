@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Eliminar{% endblock %}
+
+{% block content %}
+<div class="contenedor-wrap bg-negro">
+  <div class="content-section">
+    <div class="container align-center">
+      <h3 class="trash-title">¿Estás seguro que quieres Duplicar {{ presupuesto }}?</h3>
+      <hr>
+      <table style="width:50%" border = "1" cellpadding= "5" cellspacing = "5">
+        <th>Nombre Empresa</th>
+        <th>Nombre Cliente</th>
+        <th>Mail Cliente</th>
+    <tr>
+        <td>{{ presupuesto.nombre_empresa }}</td>
+        <td>{{ presupuesto.nombre_cliente }}</td>
+        <td>{{ presupuesto.mail_cliente }}</td>
+    </tr>
+    </table>
+    <hr>
+      <h4>El presupuesto contiene los siguentes servicios incluidos</h4>
+      <table style="width:50%" border = "1" cellpadding= "5" cellspacing = "5">
+        <th>Tipo de Servicio</th>
+    {%for object in servicios %}
+    <tr>
+        <td>{{ object.servicio }}</td>
+    </tr>
+    {%endfor%}
+    </table>
+    <hr>
+      <form method="POST">
+      {% csrf_token %}
+        <a class="btn btn-outline-info custom-link" href={% url 'presupuesto-inicio' %}>Cancelar</a>
+        <button class="btn btn-outline-info" type="submit">Duplicar</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,12 +1,178 @@
-{% extends 'core/base.html' %}
 {% load crispy_forms_tags %}
-{% block title %}Presupuesto{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-<script>
+    <title>Presupuesto | Buendia</title>
 
-{% block script %}
+    {% load static %}
 
-function updateEmptyFormIDs(element, totalForms){
+    <!-- Bootstrap -->
+    <link href="{% static 'core/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i" rel="stylesheet">
+
+    <style>
+#empty-row {
+    display: none
+}
+.form-row {
+    border-bottom: 1px solid #333;
+    margin: 20px 0px;
+    padding: 20px 10px;
+}
+
+.new-parent-row {
+    background-color: #fff;
+}
+    </style>
+
+    <!-- Estilos -->
+    <link href="{% static 'core/css/cotizador.css' %}" rel="stylesheet">
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+</head>
+
+<body>
+ <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <!-- Navbar Brand-->
+            <a class="navbar-brand ps-3" href="{% url 'core-home' %}">Cotizador</a>
+            <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
+            <!-- Navbar Search-->
+            <div class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+            </div>
+            <!-- Navbar-->
+            <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    {% if user.is_authenticated %}
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">Perfil</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    {% else %}
+                        <li><a class="dropdown-item" href="{% url 'login' %}">Iniciar Sesión</a></li>
+                    {% endif %}
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">Cotizador</div>
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                                Cotizacion
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{% url 'presupuesto-crear-1' %}">Nueva Corizacion</a>
+                                    <a class="nav-link" href="{% url 'presupuesto-inicio' %}">Inicio Presupuesto</a>
+                                </nav>
+                            </div>
+                            <div class="sb-sidenav-menu-heading">Servicios</div>
+                            <a class="nav-link" href="{% url 'servicios-inicio' %}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                Servicios
+                            </a>
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Sesion iniciada como:</div>
+                        {{user.username}}
+                    </div>
+                </nav>
+            </div>
+            <div id="layoutSidenav_content">
+                <main>
+<!-- Mensajes --> 
+<div>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+<hr>
+<form action='' method='POST'>
+{% csrf_token %}
+    <div class="container contenedor-wrap"> 
+        {{ form.media }}
+        {{ form|crispy }}
+        {{ formset.management_form }}
+        {% for form in formset %}
+        <div class='form-row'>
+            {{ form|crispy }}
+        </div>
+        {% endfor %}
+
+        <div class='form-row' id='empty-row'>
+            {{ formset.empty_form|crispy }}
+        </div>
+
+        <div class='btn-group'>
+            <a class='btn btn-link add-new-form ver-o-editar' href='#'>+</a>
+            <div style="float: left; width:50vw"></div>
+            <input class='btn btn-primary ver-o-editar' type='submit' value='Siguiente'> 
+        </div>
+</form>
+</main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Your Website 2021</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+
+           
+<!-- script -->
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- jQuery Color for Background Animation -->
+    <script src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>
+
+    <script>
+    $(document).ready(function(){
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+        
+    })
+    
+    function updateEmptyFormIDs(element, totalForms){
     var thisInput = element
 
     // get current form input name
@@ -38,14 +204,14 @@ function updateEmptyFormIDs(element, totalForms){
 
     // return created row
     return newFormRow
-}
+    }
 
 
 
 $('.add-new-form').click(function(e) {
     e.preventDefault()
     // form id like #id_form-TOTAL_FORMS
-    var formId = "id_productovendido_set-TOTAL_FORMS"
+    var formId = "id_serviciopresupuesto_set-TOTAL_FORMS"      //este es el que se cambia para que funcione con otras cosas
 
     // copy empty form
     var emptyRow = $("#empty-row").clone();
@@ -55,6 +221,8 @@ $('.add-new-form').click(function(e) {
     
     // get starting form count for formset
     var totalForms = parseInt($('#' + formId).val());
+    console.log(formId)
+    console.log(totalForms)
     
     // create new form row from empty form row
     var newFormRow;
@@ -75,75 +243,9 @@ $('.add-new-form').click(function(e) {
     }, 500, function(){
         // animate background color
         // requires: jQuery Color: https://code.jquery.com/color/jquery.color-2.1.2.min.js
-        newFormRow.animate({
-            backgroundColor: "#fff"
-        }, 1500)
     });
 
 });
-
-
-
-{% endblock %}
-
-</script>
-
-
-
-
-<style>
-{% block styles %}
-
-#empty-row {
-    display: none
-}
-.form-row {
-    border-bottom: 1px solid #333;
-    margin: 20px 0px;
-    padding: 20px 10px;
-}
-
-.new-parent-row {
-    background-color: rgba(249, 64, 92, 0.5);
-}
-{% endblock %}
-</style>
-
-{% block content %}
-<hr>
-<form action='' method='POST'>
-{% csrf_token %}
-    <div class="container contenedor-wrap"> 
-        {{ form.media }}
-        {{ form|crispy }}
-        {{ formset.management_form }}
-        {% for form in formset %}
-        <div class='form-row'>
-            {{ form|crispy }}
-        </div>
-        {% endfor %}
-
-        <div class='form-row' id='empty-row'>
-            {{ formset.empty_form|crispy }}
-        </div>
-
-        <div class='btn-group'>
-            <a class='btn btn-link add-new-form ver-o-editar' href='#'>+</a>
-            <div style="float: left; width:50vw"></div>
-            <input class='btn btn-primary ver-o-editar' type='submit' value='Siguiente'> 
-        </div>
-</form>
-    <br/>
-    <br/>
-</div>
-
-{% endblock %}
-
-{% block jQuery %}
-    
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <!-- jQuery Color for Background Animation -->
-    <script src="https://code.jquery.com/color/jquery.color-2.1.2.min.js"></script>
-
-{% endblock %}
+    </script>
+  </body>
+</html>

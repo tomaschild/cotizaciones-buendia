@@ -34,6 +34,11 @@ from .forms import(
     PresupuestoFormDescuento,
 )
 
+from pdflibs import sections, format
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Paragraph, PageBreak
+from django.http import FileResponse
+import io
 
     #SERVICIOS
 
@@ -356,9 +361,10 @@ def presupuesto_pdf(request,pk):
     presupuesto = Presupuesto.objects.get(pk=pk)
     servicios = ServicioPresupuesto.objects.filter(presupuesto=pk)
     lista_presupuesto = []
-    lista_servicios = []
+    lista_servicios = {}
 
     datos_presupuesto={
+        'id_presupuesto': presupuesto.id,
         'nombre_cliente': presupuesto.nombre_cliente,
         'nombre_empresa': presupuesto.nombre_empresa,
         'tipo_proyecto': 'Portal Web'}
@@ -372,17 +378,60 @@ def presupuesto_pdf(request,pk):
     lista_presupuesto.append(datos_portada)
 
     for servicio in servicios:
-        servicios_pdf={
-            'nombre':servicio.servicio.nombre,
-            'precio':servicio.servicio.precio,
-            'descripcion':servicio.descripcion,
-            'tiempo':servicio.servicio.tiempo,
+        serv = {
+            f"{servicio.servicio.nombre}": {
+                'precio':servicio.servicio.precio,
+                'descripcion':servicio.descripcion,
+                'tiempo':servicio.servicio.tiempo,
+            }
         }
-        lista_servicios.append(servicios_pdf)
+        lista_servicios.update(serv)
+
+    #print(lista_presupuesto)
+    #print(lista_servicios)
+    
+    buf = io.BytesIO()
+    #generarPDF(lista_presupuesto, lista_servicios)
+    buffer, nombre = generarPDF(lista_presupuesto, lista_servicios)
+
+    return FileResponse(buffer, as_attachment=True, filename=nombre)
+
+    #context = {
+        #'presupuesto':presupuesto,
+    #}
+
+    #return render(request, 'core/presupuesto_pdf.html', context)
 
 
-    context = {
-        'presupuesto':presupuesto,
-    }
 
-    return render(request, 'core/presupuesto_pdf.html', context)
+def generarPDF(lista_presupuesto, datos_servicios):
+
+    hoja = 'carta'
+    fuente = 'Poppins'
+    folio = lista_presupuesto[0]['id_presupuesto']
+    numero_pagina = 2
+    numero_servicio = 1
+
+    datos_presupuesto = lista_presupuesto[0]
+    datos_portada = lista_presupuesto[1]
+    datos_contacto =  {
+        'nombre_empresa': '<b>Agencia de Diseño Buendía</b>',
+        'direccion': 'Eliodoro Yáñez 1110 Of. E. Providencia - Santiago, Chile',
+        'telefono': 'Fono of. <b>+56 2 2235 4334</b>',
+        'correo': 'info@buendia.cl',
+        'sitio': '<a href="http://www.buendia.cl"><b>www.buendia.cl</b></a>'}
+
+    buf = io.BytesIO()
+    ppto = canvas.Canvas(buf)
+    documento, estilos = format.setDocumentProperties(hoja, fuente, folio)
+    #datos_contacto, datos_presupuesto, datos_portada, datos_servicios  = data.getData()
+
+    sections.portada(ppto, documento, estilos, datos_contacto, datos_portada)
+    numero_servicio, numero_pagina = sections.servicios(ppto, documento, estilos, datos_presupuesto, datos_contacto, datos_servicios, numero_pagina, numero_servicio)
+    numero_pagina = sections.metodologia(ppto, documento, estilos, datos_presupuesto, datos_contacto, numero_pagina, numero_servicio)
+    sections.propuesta(ppto, documento, estilos, datos_presupuesto, datos_contacto, datos_servicios, numero_pagina, numero_servicio)
+    
+    ppto.save()
+    buf.seek(0)
+
+    return buf, f"Presupuesto-{folio}.pdf"

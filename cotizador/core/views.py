@@ -199,7 +199,6 @@ def presupuesto_duplicar(request, pk):
             otros_comentarios=presupuesto.otros_comentarios,
             usuario=request.user,
         )
-        print(n_presupuesto)
         for servicio in servicios:
             n_servicio = ServicioPresupuesto.objects.create(
                 servicio=servicio.servicio,
@@ -207,7 +206,6 @@ def presupuesto_duplicar(request, pk):
                 descripcion=servicio.descripcion,
                 usuario=request.user,
             )
-            print(servicio)
         messages.success(request, f'El fue duplicado')
         return redirect('presupuesto-inicio')
 
@@ -351,3 +349,40 @@ def calcular_total(queryset, servicios, valor_descuento):
         total = total + precio
     total = total - valor_descuento
     return total
+
+
+@login_required
+def presupuesto_pdf(request,pk):
+    presupuesto = Presupuesto.objects.get(pk=pk)
+    servicios = ServicioPresupuesto.objects.filter(presupuesto=pk)
+    lista_presupuesto = []
+    lista_servicios = []
+
+    datos_presupuesto={
+        'nombre_cliente': presupuesto.nombre_cliente,
+        'nombre_empresa': presupuesto.nombre_empresa,
+        'tipo_proyecto': 'Portal Web'}
+    
+    datos_portada = {
+        'titulo_saludo': presupuesto.informacion_nombre,
+        'texto_saludo': presupuesto.informacion_cuerpo,
+        'firma_saludo': "<b>Equipo Buen día</b>"}
+    
+    lista_presupuesto.append(datos_presupuesto)
+    lista_presupuesto.append(datos_portada)
+
+    for servicio in servicios:
+        servicios_pdf={
+            'nombre':servicio.servicio.nombre,
+            'precio':servicio.servicio.precio,
+            'descripcion':servicio.descripcion,
+            'tiempo':servicio.servicio.tiempo,
+        }
+        lista_servicios.append(servicios_pdf)
+
+
+    context = {
+        'presupuesto':presupuesto,
+    }
+
+    return render(request, 'core/presupuesto_pdf.html', context)

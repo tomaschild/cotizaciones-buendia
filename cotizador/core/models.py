@@ -7,6 +7,7 @@ from ckeditor.fields import RichTextField
 class Presupuesto(models.Model):
     nombre_empresa = models.CharField(max_length=30, verbose_name='Nombre de empresa')
     nombre_cliente = models.CharField(max_length=30, verbose_name='Nombre de Cliente')
+    tipo = models.CharField(max_length=30, verbose_name='Tipo de Proyecto')
     mail_cliente = models.EmailField(max_length=30, verbose_name='Mail de Cliente')
     informacion_nombre = models.CharField(max_length=30, verbose_name='Nombre primera pagina')
     informacion_cuerpo = RichTextField(

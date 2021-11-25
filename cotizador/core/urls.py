@@ -25,6 +25,7 @@ urlpatterns = [
   path('presupuesto/crear/precio/final/<int:pk>/',views.presupuesto_crear_cinco,name="presupuesto-crear-5"),
   path('presupuesto/<int:pk>/delete/',views.presupuesto_delete, name='presupuesto-delete'),
   path('presupuesto/<int:pk>/duplicar/',views.presupuesto_duplicar, name='presupuesto-duplicar'),
+  path('presupuesto/<int:pk>/pdf/',views.presupuesto_pdf, name='presupuesto-pdf'),
   #SEWRVICIOS Presupuesto
   path('serviciopresupuesto/<int:pk>/edicion/',EdicionServicioPresupuesto.as_view(), name="serviciopresupuesto-edicion"),
   path('serviciopresupuesto/<int:pk>/delete/',views.serviciopresupuesto_delete, name="serviciopresupuesto-delete"),

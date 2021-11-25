@@ -69,6 +69,7 @@ class PresupuestoModelForm(forms.ModelForm):
         fields = [
             'nombre_empresa',
             'nombre_cliente',
+            'tipo',
             'mail_cliente',
             'informacion_nombre',
             'informacion_cuerpo',
@@ -90,6 +91,7 @@ class PresupuestoFormParteInicio(forms.ModelForm):
             'nombre_empresa',
             'nombre_cliente',
             'mail_cliente',
+            'tipo',
             'informacion_nombre',
             'informacion_cuerpo',
         ]

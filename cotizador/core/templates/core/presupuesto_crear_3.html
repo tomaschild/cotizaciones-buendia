@@ -11,8 +11,10 @@
     <hr>
     {%for object in servicios %}
         <h2>{{ object.servicio }}</h2>
+        <h2>{{ object.tiempo }}</h2>
+        <h2>{{ object.precio }}</h2>
         <p>{{ object.descripcion|safe }}</p>
-        <a class="btn ver-o-editar" href="{% url 'serviciopresupuesto-edicion' object.id %}">VER O EDITAR</a>
+        <a class="btn ver-o-editar" href="{% url 'serviciopresupuesto-edicion' object.id 0 %}">VER O EDITAR</a>
         <hr>
     {%endfor%}
     <div class="form-group">

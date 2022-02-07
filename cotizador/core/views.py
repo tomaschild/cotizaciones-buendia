@@ -24,10 +24,8 @@ from .filters import(
 
 from .forms import(
     ServicioModelForm,
-    PresupuestoModelForm,
     PresupuestoFormParteInicio,
     PresupuestoFormParteDos,
-    PresupuestoFormParteTres,
     PresupuestoFormParteCuatro,
     ServicioPresupuestoModelForm,
     ServicioPresupuestoFormset,
@@ -88,13 +86,9 @@ def servicio_delete(request, pk):
     servicio = Servicio.objects.get(pk=pk)
 
     if request.method == 'POST':
-        if request.user == servicio.usuario:
-            servicio.delete()
-            messages.success(request, f'El servicio fue elimiado con exito')
-            return redirect('servicios-inicio')
-        else:
-            messages.warning(request, f'No esta autorizado para eliminar el servicio')
-            return redirect('servicios-inicio')
+        servicio.delete()
+        messages.success(request, f'El servicio fue elimiado con exito')
+        return redirect('servicios-inicio')
     context = {
         'object': servicio,
     }
@@ -102,26 +96,72 @@ def servicio_delete(request, pk):
     return render(request, 'core/servicios_delete.html', context)
 
     #PRESUPUESTO
-# = servicios_edicio.html
-
-class EdicionServicioPresupuesto(LoginRequiredMixin, UserPassesTestMixin,UpdateView):
-    model = ServicioPresupuesto
-    form_class = ServicioPresupuestoModelForm
-    template_name = 'core/serviciopresupuesto_edicion.html'
-
-    def form_valid(self, form):
-        form.instance.usuario = self.request.user
-        messages.success(self.request, "El servicio fue editado con exito")
-        return super().form_valid(form)
-
-    def test_func(self):
-        formulario = self.get_object()
-        if self.request.user == formulario.usuario:
-            return True
-        return False
 
 @login_required
-def serviciopresupuesto_delete(request, pk):
+def edicion_presupuesto(request, pk):
+    presupuesto = Presupuesto.objects.get(pk=pk)
+    servicios = ServicioPresupuesto.objects.filter(presupuesto=pk)
+    form_1 = PresupuestoFormParteInicio(instance=presupuesto)
+    form_2 = PresupuestoFormParteDos(instance=presupuesto)
+    form_4 = PresupuestoFormParteCuatro(instance=presupuesto)
+    descuento = PresupuestoFormDescuento(instance=presupuesto)
+
+    s_list = [servicio for servicio in servicios.values()]
+    total = calcular_total(servicios, s_list, 0, presupuesto.iva)
+
+    if request.method == 'POST':
+        form_1 = PresupuestoFormParteCuatro(request.POST,instance=presupuesto)
+        form_2 = PresupuestoFormParteCuatro(request.POST,instance=presupuesto)
+        form_4 = PresupuestoFormParteCuatro(request.POST,instance=presupuesto)
+        descuento = PresupuestoFormDescuento(request.POST,instance=presupuesto)
+        if form_1.is_valid() and form_2.is_valid() and form_4.is_valid() and descuento.is_valid():
+            form_1.save()
+            form_2.save()
+            presupuesto.descuento = descuento.cleaned_data.get('descuento')
+            presupuesto.valor_descuento = descuento.cleaned_data.get('valor_descuento')
+            presupuesto.otros_comentarios = form_4.cleaned_data.get('otros_comentarios')
+            presupuesto.save()
+            presupuesto = presupuesto.id
+            messages.success(request, "El presupuesto fue editadoc on exito")
+            return redirect('presupuesto-inicio')
+        
+  
+    context = {
+        'form_1': form_1,
+        'form_2': form_2,
+        'form_4': form_4,
+        'servicios':servicios,
+        'descuento':descuento,
+        'total':total
+    }
+
+    return render(request, 'core/presupuesto_edicion.html', context)
+
+
+def edicion_servicio_presupuesto(request, pk, redireccion):
+    servicio_presupuesto = ServicioPresupuesto.objects.get(pk=pk)
+    presupuesto = servicio_presupuesto.presupuesto
+    form = ServicioPresupuestoModelForm(instance=servicio_presupuesto)
+
+    if request.method == 'POST':
+        form = ServicioPresupuestoModelForm(request.POST ,instance=servicio_presupuesto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "El servicio fue editado con exito")
+            if redireccion == 0:
+                return redirect('presupuesto-crear-3', presupuesto.id)
+            elif redireccion == 1:
+                return redirect('presupuesto-edicion', presupuesto.id)
+
+    context = {
+        'form':form
+    }
+
+    return render(request, 'core/serviciopresupuesto_edicion.html', context)
+
+
+@login_required
+def serviciopresupuesto_delete(request, pk, redireccion):
     serviciopresupuesto = ServicioPresupuesto.objects.get(pk=pk)
     presupuesto = serviciopresupuesto.presupuesto
     presupuesto_id = presupuesto.id
@@ -129,7 +169,10 @@ def serviciopresupuesto_delete(request, pk):
     if request.method == 'POST':
         serviciopresupuesto.delete()
         messages.success(request, f'El presupuesto fue elimiado con exito')
-        return redirect('presupuesto-crear-4', presupuesto_id)
+        if redireccion == 0:
+            return redirect('presupuesto-crear-4', presupuesto_id)
+        if redireccion == 1:
+            return redirect('presupuesto-edicion', presupuesto_id)
 
     context = {
         'object': serviciopresupuesto,
@@ -150,22 +193,6 @@ class InicioPresupuesto(ListView):
         context['filter'] = PresupuestoFilter(self.request.GET, queryset=self.get_queryset())
         return context
 
-#MODIFICACION DE SERVICIOS ESPESIFICO TEMPLATE = servicios_edicio.html
-class EdicionPresupuesto(LoginRequiredMixin, UserPassesTestMixin,UpdateView):
-    model = Presupuesto
-    form_class = PresupuestoModelForm
-    template_name = 'core/presupuesto_edicion.html'
-
-    def form_valid(self, form):
-        form.instance.usuario = self.request.user
-        messages.success(self.request, "El servicio fue editado con exito")
-        return super().form_valid(form)
-
-    def test_func(self):
-        formulario = self.get_object()
-        if self.request.user == formulario.usuario:
-            return True
-        return False
 
 #MODIFICACION DE SERVICIOS ESPESIFICO TEMPLATE = servicios_edicio.html
 @login_required
@@ -173,13 +200,9 @@ def presupuesto_delete(request, pk):
     presupuesto = Presupuesto.objects.get(pk=pk)
 
     if request.method == 'POST':
-        if request.user == presupuesto.usuario:
-            presupuesto.delete()
-            messages.success(request, f'El presupuesto fue elimiado con exito')
-            return redirect('presupuesto-inicio')
-        else:
-            messages.warning(request, f'No esta autorizado para eliminar el presupuesto')
-            return redirect('presupuesto-inicio')
+        presupuesto.delete()
+        messages.success(request, f'El presupuesto fue elimiado con exito')
+        return redirect('presupuesto-inicio')
     context = {
         'object': presupuesto,
     }
@@ -200,6 +223,7 @@ def presupuesto_duplicar(request, pk):
             informacion_cuerpo=presupuesto.informacion_cuerpo,
             introduccion=presupuesto.introduccion,
             descuento=presupuesto.descuento,
+            iva=presupuesto.iva,
             valor_descuento=presupuesto.valor_descuento,
             otros_comentarios=presupuesto.otros_comentarios,
             usuario=request.user,
@@ -209,6 +233,8 @@ def presupuesto_duplicar(request, pk):
                 servicio=servicio.servicio,
                 presupuesto=n_presupuesto,
                 descripcion=servicio.descripcion,
+                precio=servicio.precio,
+                tiempo=servicio.tiempo,
                 usuario=request.user,
             )
         messages.success(request, f'El fue duplicado')
@@ -220,7 +246,6 @@ def presupuesto_duplicar(request, pk):
     }
 
     return render(request, 'core/presupuesto_duplicar.html', context)
-
 
 #MODIFICACION DE SERVICIOS ESPESIFICO TEMPLATE = servicios_edicio.html
 @login_required
@@ -261,11 +286,15 @@ def presupuesto_crear_dos(request, pk):
             for form in formset:
                 servicio = form.cleaned_data.get('servicio')
                 descripcion = servicio.descripcion
+                precio = servicio.precio
+                tiempo = servicio.tiempo
                 if servicio:
                     ServicioPresupuesto(
                         servicio=servicio,
                         presupuesto=presupuesto,
                         descripcion=descripcion,
+                        precio=precio,
+                        tiempo=tiempo,
                         usuario=request.user
                         ).save()
             return redirect('presupuesto-crear-3', pk=presupuesto_id)
@@ -293,7 +322,6 @@ def presupuesto_crear_tres(request, pk):
 
     return render(request, 'core/presupuesto_crear_3.html', context)
 
-
 @login_required
 def presupuesto_crear_cuatro(request, pk):
     presupuesto = Presupuesto.objects.get(pk=pk)
@@ -302,7 +330,7 @@ def presupuesto_crear_cuatro(request, pk):
     descuento = PresupuestoFormDescuento()
 
     s_list = [servicio for servicio in servicios.values()]
-    total = calcular_total(servicios, s_list, 0)
+    total = calcular_total(servicios, s_list, 0, None)
 
     if request.method == 'POST':
         form = PresupuestoFormParteCuatro(request.POST)
@@ -333,9 +361,9 @@ def presupuesto_crear_cinco(request, pk):
     servicios = ServicioPresupuesto.objects.filter(presupuesto=pk)
     s_list = [servicio for servicio in servicios.values()]
     if presupuesto.descuento == True:
-        total = calcular_total(servicios, s_list, presupuesto.valor_descuento)
+        total = calcular_total(servicios, s_list, presupuesto.valor_descuento, presupuesto.iva)
     else:
-        total = calcular_total(servicios, s_list, 0)
+        total = calcular_total(servicios, s_list, 0, presupuesto.iva)
     
     context = {
         'presupuesto': presupuesto,
@@ -345,16 +373,23 @@ def presupuesto_crear_cinco(request, pk):
 
     return render(request, 'core/presupuesto_crear_5.html', context)
 
-
-def calcular_total(queryset, servicios, valor_descuento):
+def calcular_total(queryset, servicios, valor_descuento, iva):
     total = 0
+    porcentaje_descuento = valor_descuento/100
     for servicio in servicios:
         ser = Servicio.objects.get(pk=servicio['servicio_id'])
         precio = ser.precio
         total = total + precio
-    total = total - valor_descuento
-    return total
-
+    if iva:
+        valor_descontado = porcentaje_descuento*total
+        total_siniva = total - valor_descontado
+        valor_iva = total*0.19
+        total = total + valor_iva
+        return {'total':int(total), 'total_siniva': int(total_siniva),'valor_descontado':int(valor_descontado),'iva':int(valor_iva)}
+    else:
+        valor_descontado = porcentaje_descuento*total
+        total = total - valor_descontado
+        return {'total':int(total), 'valor_descontado':int(valor_descontado),'iva':'Exenta de IVA'}
 
 @login_required
 def presupuesto_pdf(request,pk):
@@ -395,14 +430,6 @@ def presupuesto_pdf(request,pk):
     buffer, nombre = generarPDF(lista_presupuesto, lista_servicios)
 
     return FileResponse(buffer, as_attachment=True, filename=nombre)
-
-    #context = {
-        #'presupuesto':presupuesto,
-    #}
-
-    #return render(request, 'core/presupuesto_pdf.html', context)
-
-
 
 def generarPDF(lista_presupuesto, datos_servicios):
 

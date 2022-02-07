@@ -17,21 +17,28 @@
         <td>{{ object.servicio }}</td>
         <td>{{ object.servicio.tiempo }}</td>
         <td>{{ object.servicio.precio }}</td>
-        <td><a href="{% url 'serviciopresupuesto-delete' object.id %}">Eliminiar</a></td>
+        <td><a href="{% url 'serviciopresupuesto-delete' object.id 0 %}">Eliminiar</a></td>
     </tr>
     {%endfor%}
         <form method="POST">
         {% csrf_token %}
     <tr>
-        <td>Descuento:</td>
+        <td>Porcentaje de descuento:</td>
         <td>{{descuento.descuento}}</td>
-        <td>{{descuento.valor_descuento}}</td>
+        <td>{{descuento.valor_descuento}} %</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>IVA</td>
+        <td>{{descuento.iva}}</td>
+        <td></td>
         <td></td>
     </tr>
     <tr>
         <td></td>
         <td></td>
-        <td>Total: {{ total }}</td>
+        <td>Total: {{ total.total }}</td>
+        <td></td>
     </tr>
     </table>
     <hr>

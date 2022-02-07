@@ -9,7 +9,7 @@
       <h3 class="trash-title">¿Estás seguro que quieres eliminar {{ object }}?</h3>
       <form method="POST">
       {% csrf_token %}
-        <a class="btn btn-outline-info custom-link" href={% url 'presupuesto-crear-4' {{ object.id }} %}>Cancelar</a>
+        <a class="btn btn-outline-info custom-link" href={% url 'presupuesto-crear-4' object.id %}>Cancelar</a>
         <button class="btn btn-outline-info" type="submit">Eliminar</button>
       </form>
     </div>

@@ -7,17 +7,16 @@ from .views import (
   EdicionServicio,
   CrearServicio,
   #SERVICIO PRESUPUESTO
-  EdicionServicioPresupuesto,
+  # EdicionServicioPresupuesto,
   #PRESUPUESTO
   InicioPresupuesto,
-  EdicionPresupuesto,
 )
 
 urlpatterns = [
   path('',TemplateView.as_view(template_name='core/home.html'),name="core-home"),
   #PRESUPUESTOS
   path('presupuesto/',InicioPresupuesto.as_view(),name="presupuesto-inicio"),
-  path('presupuesto/<int:pk>/edicion/',EdicionPresupuesto.as_view(),name="presupuesto-edicion"),
+  path('presupuesto/edicion/<int:pk>',views.edicion_presupuesto,name="presupuesto-edicion"),
   path('presupuesto/crear/',views.presupuesto_crear_inicio,name="presupuesto-crear-1"),
   path('presupuesto/crear/<int:pk>/',views.presupuesto_crear_dos,name="presupuesto-crear-2"),
   path('presupuesto/crear/resumen/<int:pk>/',views.presupuesto_crear_tres,name="presupuesto-crear-3"),
@@ -27,8 +26,8 @@ urlpatterns = [
   path('presupuesto/<int:pk>/duplicar/',views.presupuesto_duplicar, name='presupuesto-duplicar'),
   path('presupuesto/<int:pk>/pdf/',views.presupuesto_pdf, name='presupuesto-pdf'),
   #SEWRVICIOS Presupuesto
-  path('serviciopresupuesto/<int:pk>/edicion/',EdicionServicioPresupuesto.as_view(), name="serviciopresupuesto-edicion"),
-  path('serviciopresupuesto/<int:pk>/delete/',views.serviciopresupuesto_delete, name="serviciopresupuesto-delete"),
+  path('serviciopresupuesto/<int:pk>/edicion/<int:redireccion>/',views.edicion_servicio_presupuesto, name="serviciopresupuesto-edicion"),
+  path('serviciopresupuesto/<int:pk>/delete/<int:redireccion>/',views.serviciopresupuesto_delete, name="serviciopresupuesto-delete"),
   #SEWRVICIOS
   path('servicios/',InicioServicio.as_view(),name="servicios-inicio"),
   path('servicios/crear/',CrearServicio.as_view(),name="servicios-crear"),

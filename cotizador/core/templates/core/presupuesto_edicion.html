@@ -9,8 +9,55 @@
             {% csrf_token %}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Edicion Presupuesto</legend>
-                {{ form.media }}
-                {{ form|crispy }}
+                {{ form_1.media }}
+                {{ form_1|crispy }}
+                {{ form_2.media }}
+                {{ form_2|crispy }}
+                {%for object in servicios %}
+                    <h2>{{ object.servicio }}</h2>
+                    <p>Tiempo estimado = {{ object.tiempo }}</p>
+                    <p>Precio = $ {{ object.precio }}</p>
+                    <p>{{ object.descripcion|safe }}</p>
+                    <a class="btn ver-o-editar" href="{% url 'serviciopresupuesto-edicion' object.id 1 %}">VER O EDITAR</a>
+                    <a class="btn ver-o-editar" href="{% url 'serviciopresupuesto-delete' object.id 1 %}">ELIMINAR</a>
+                    <hr>
+                {%endfor%}
+                <div class="container contenedor-wrap"> 
+                    <div class="content-section">
+                    <h1>Presupuesto Economico</h1>
+                    <hr>
+                    <table style="width:100%" border = "1" cellpadding= "5" cellspacing = "5">
+                        <th>Tipo de Servicio</th>
+                        <th>Tiempo Estimado</th> 
+                        <th>Precio</th>
+                    {%for object in servicios %}
+                    <tr>
+                        <td>{{ object.servicio }}</td>
+                        <td>{{ object.servicio.tiempo }}</td>
+                        <td>$ {{ object.servicio.precio }}</td>
+                    </tr>
+                    {%endfor%}
+                    <tr>
+                        <td>Porcentaje de descuento:</td>
+                        <td>{{descuento.descuento}}</td>
+                        <td>{{descuento.valor_descuento}} %</td>
+                    </tr>
+                    <tr>
+                        <td>IVA</td>
+                        <td>{{descuento.iva}}</td>
+                        <td>$ {{ total.iva }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Total: $ {{ total.total }}</td>
+                    </tr>
+                    </table>
+                    <hr>
+                    {{ form_4.media }}
+                    {{ form_4|crispy }}
+                    </div>
+                </div>
             </fieldset>
             <div class="form-group">
                 <button class="btn btn-outline-info" type="submit">Actualizar</button>

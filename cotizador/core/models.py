@@ -1,8 +1,12 @@
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.shortcuts import redirect
 from ckeditor.fields import RichTextField
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
 
 class Presupuesto(models.Model):
     nombre_empresa = models.CharField(max_length=30, verbose_name='Nombre de empresa')
@@ -21,8 +25,30 @@ class Presupuesto(models.Model):
         null=True
     )
     descuento = models.BooleanField(default=False, verbose_name="Descuento")
-    valor_descuento = models.PositiveIntegerField(verbose_name='Cantidad descontada',null=True, blank=True)
-    otros_comentarios = RichTextField(verbose_name='Otros Comentarios', null=True, blank=True)
+    iva = models.BooleanField(default=True, verbose_name="IVA")
+    valor_descuento = models.DecimalField(max_digits=3,decimal_places=0, default=0, validators=PERCENTAGE_VALIDATOR,verbose_name='Porcentaje de descuento',null=True, blank=True)
+    otros_comentarios = RichTextField(verbose_name='Otros Comentarios', null=True, blank=True, default= f" \
+    <p>&bull; Los valores expresados son totales. Contemplan factura excenta de IVA por servicios profesionales de dise&ntilde;o.</p>\
+    \
+    <p>&bull; Los valores aqu&iacute; expresados no incluyen costos de servidor ni dominio. Buend&iacute;a puede gestioar su adquisici&oacute;n.</p>\
+    \
+    <p>&bull; Los plazos est&aacute;n sujetos a entrega de Orden de Compra, contenidos y feedback por parte de cliente.</p>\
+    \
+    <p>&bull; Todos los servicios tienen una garant&iacute;a por 3 meses a partir de la fecha de entrega.</p>\
+    \
+    <p>&bull; Forma de pago sugerida. 50% anticipo y 50% contra entrega final del proyecto.</p>\
+    \
+    <p>&nbsp;</p>\
+    \
+    <p>Datos de la Empresa</p>\
+    \
+    <p>Castro y Vicencio C&iacute;a. Ltda.</p>\
+    \
+    <p>76.084.268-0</p>\
+    \
+    <p>Servicios de dise&ntilde;o gr&aacute;fico</p>\
+    \
+    <p>Garibaldi 1653, &Ntilde;u&ntilde;oa - Santiago.</p>")
 
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación", editable=False)
@@ -64,6 +90,8 @@ class ServicioPresupuesto(models.Model):
     servicio = models.ForeignKey(Servicio, on_delete=models.PROTECT)
     presupuesto = models.ForeignKey(Presupuesto, on_delete=models.CASCADE)
     descripcion = RichTextField(null=True,blank=True)
+    tiempo = models.CharField(default="20 dias habiles",max_length=30, verbose_name='Tiempo estimado')
+    precio = models.PositiveIntegerField(default=0,verbose_name='Valor del servicio')
 
     usuario = models.ForeignKey(User, on_delete=models.PROTECT)
     created = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación", editable=False)
